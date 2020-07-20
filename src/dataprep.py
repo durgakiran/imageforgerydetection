@@ -128,7 +128,7 @@ class DataPrep():
 
         return patches_index, patch_arr
     
-    def extractPristinePatches(self, img_path, mask_path, threshold = 500, stride = (10, 10), size = (64, 64), padding='VALID'):
+    def extractPristinePatches(self, img_path, mask_path, threshold = 800, stride = (10, 10), size = (64, 64), padding='VALID'):
         patches = []
         new_img = cv2.imread(img_path)
         mask = cv2.imread(mask_path)
@@ -139,27 +139,61 @@ class DataPrep():
         (h, w, c) = new_img.shape
         h_range = h - 64
         w_range = w - 64
-        print(h_range, w_range)
+        # print(h_range, w_range)
         for i in range(0,h_range, 10):
             for j in range(0, w_range, 10):
                 patch = np.zeros((64,64,3))
                 patch_mask = np.zeros((64,64))
                 for k in range(64):
-                    print(k)
+                    
                     # print(new_img.shape)
                     row_mask = new_mask[(i + k):(i + 1 + k), ( j ) : (j+  64)]
                     row = new_img[(i + k):(i + 1 + k), ( j ) : (j+ 64), :]
                     patch[k, :, :] = row
                     patch_mask[k, :] = row_mask
             
-            patch = np.array(patch, dtype='int')
-            patch_mask = np.array(patch_mask, dtype='int')
-            if (np.sum(patch_mask) <= 1*64*64 and (np.sum(patch_mask) > 0*64*64)):
-                continue
-            else:
-                patches.append(patch)
+                patch = np.array(patch, dtype='int')
+                patch_mask = np.array(patch_mask, dtype='int')
+                if (np.sum(patch_mask) <= 1*64*64 and (np.sum(patch_mask) > 0*64*64)):
+                    continue
+                else:
+                    patches.append(patch)
         if len(patches) > 800:
-            patches_index = np.random.choice(len(patches), 500, replace=False)
+            patches_index = np.random.choice(len(patches), 800, replace=False)
+            patch_arr = [patches[q] for q in patches_index]
+        else:
+            patches_index = range(len(patches))
+            patch_arr = patches
+
+        return patches_index, patch_arr
+    
+    def extractPristinePatchesFromPristine(self, img_path, threshold = 300):
+        patches = []
+        new_img = cv2.imread(img_path)
+        #mask = cv2.imread(mask_path)
+        #mask_grey = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY) # this would convert the 3 channel image to single channel
+        #blur = cv2.GaussianBlur(mask_grey,(5,5),0) # to remove any noise present
+        #ret3, new_mask = cv2.threshold(blur,0,1,cv2.THRESH_BINARY+cv2.THRESH_OTSU) # ostru binary thresholding
+        
+        (h, w, c) = new_img.shape
+        h_range = h - 64
+        w_range = w - 64
+        # print(h_range, w_range)
+        for i in range(0,h_range, 10):
+            for j in range(0, w_range, 10):
+                patch = np.zeros((64,64,3))
+                for k in range(64):
+                    # print(new_img.shape)
+                    row = new_img[(i + k):(i + 1 + k), ( j ) : (j+ 64), :]
+                    patch[k, :, :] = row
+            
+                patch = np.array(patch, dtype='int')
+                if (np.sum(patch_mask) <= 1*64*64 and (np.sum(patch_mask) > 0*64*64)):
+                    continue
+                else:
+                    patches.append(patch)
+        if len(patches) > 300:
+            patches_index = np.random.choice(len(patches), 300, replace=False)
             patch_arr = [patches[q] for q in patches_index]
         else:
             patches_index = range(len(patches))
