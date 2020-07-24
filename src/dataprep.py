@@ -140,8 +140,8 @@ class DataPrep():
         h_range = h - 64
         w_range = w - 64
         # print(h_range, w_range)
-        for i in range(0,h_range, 10):
-            for j in range(0, w_range, 10):
+        for i in range(0,h_range, stride[0]):
+            for j in range(0, w_range, stride[1]):
                 patch = np.zeros((64,64,3))
                 patch_mask = np.zeros((64,64))
                 for k in range(64):
